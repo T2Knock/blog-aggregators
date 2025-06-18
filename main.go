@@ -9,7 +9,7 @@ import (
 )
 
 type state struct {
-	config *config.Config
+	config config.Config
 }
 
 type command struct {
@@ -27,7 +27,10 @@ func (c *commands) run(s *state, cmd command) error {
 		return fmt.Errorf("command %v did not exist", cmd.name)
 	}
 
-	handler(s, cmd)
+	err := handler(s, cmd)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -49,9 +52,7 @@ func handlerLogin(s *state, cmd command) error {
 }
 
 func main() {
-	arguments := os.Args
-
-	if len(arguments) < 2 {
+	if len(os.Args) < 2 {
 		log.Fatalf("Requires at least two arguments")
 	}
 
@@ -60,8 +61,8 @@ func main() {
 		log.Fatalf("error reading config: %v", err)
 	}
 
-	s := state{
-		config: &currentConfig,
+	s := &state{
+		config: currentConfig,
 	}
 
 	cmds := commands{
@@ -69,4 +70,13 @@ func main() {
 	}
 
 	cmds.register("login", handlerLogin)
+
+	cmd := command{
+		name:      os.Args[1],
+		arguments: os.Args[2:],
+	}
+
+	if err = cmds.run(s, cmd); err != nil {
+		log.Fatalf("Running handler error: %v", err)
+	}
 }
