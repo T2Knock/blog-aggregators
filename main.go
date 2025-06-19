@@ -1,15 +1,17 @@
 package main
 
 import (
-	"context"
+	"database/sql"
 	"log"
 	"os"
 
 	"github.com/T2Knock/blog-aggregators/internal/config"
-	"github.com/jackc/pgx/v5"
+	"github.com/T2Knock/blog-aggregators/internal/database"
+	_ "github.com/lib/pq"
 )
 
 type state struct {
+	db     *database.Queries
 	config config.Config
 }
 
@@ -23,16 +25,16 @@ func main() {
 		log.Fatalf("error reading config: %v", err)
 	}
 
-	ctx := context.Background()
-
-	conn, err := pgx.Connect(ctx, os.Getenv("DATABASE_URL"))
+	db, err := sql.Open("postgres", currentConfig.DbURL)
 	if err != nil {
-		log.Fatalf("DB connection failed")
+		log.Fatalf("DB connection failed %v", err)
 	}
-	defer conn.Close(ctx)
+
+	dbQuerries := database.New(db)
 
 	s := &state{
 		config: currentConfig,
+		db:     dbQuerries,
 	}
 
 	cmds := commands{
