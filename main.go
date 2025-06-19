@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
 	"github.com/T2Knock/blog-aggregators/internal/config"
+	"github.com/jackc/pgx/v5"
 )
 
 type state struct {
@@ -20,6 +22,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("error reading config: %v", err)
 	}
+
+	ctx := context.Background()
+
+	conn, err := pgx.Connect(ctx, os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatalf("DB connection failed")
+	}
+	defer conn.Close(ctx)
 
 	s := &state{
 		config: currentConfig,
