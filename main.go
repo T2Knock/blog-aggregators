@@ -42,6 +42,7 @@ func main() {
 	}
 
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 
 	cmd := command{
 		Name:      os.Args[1],

@@ -1,10 +1,8 @@
 -- name: CreateUser :one
-INSERT INTO users (user_id, created_at, updated_at, user_name)
+INSERT INTO users (user_id, user_name)
 VALUES (
     $1,
-    $2,
-    $3,
-    $4
+    $2
 )
 RETURNING *;
 
