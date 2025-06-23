@@ -47,8 +47,8 @@ func handlerRegister(s *state, cmd command) error {
 	}
 
 	newUser, err := s.db.CreateUser(ctx, database.CreateUserParams{
-		UserID:   uuid.New(),
-		Name: name,
+		UserID: uuid.New(),
+		Name:   name,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create user: %w", err)
@@ -59,5 +59,17 @@ func handlerRegister(s *state, cmd command) error {
 	}
 
 	fmt.Println("New user registered!")
+	return nil
+}
+
+func handlerReset(s *state, cmd command) error {
+	ctx := context.Background()
+
+	err := s.db.DeleteUser(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to delete all users: %w", err)
+	}
+
+	fmt.Println("User table reset!")
 	return nil
 }
