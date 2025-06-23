@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func Read() (Config, error) {
+func ReadConfig() (Config, error) {
 	filePath, err := getConfigFilePath()
 	if err != nil {
 		return Config{}, err

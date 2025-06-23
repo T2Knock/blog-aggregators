@@ -20,7 +20,7 @@ func main() {
 		log.Fatalf("Requires at least two arguments")
 	}
 
-	currentConfig, err := config.Read()
+	currentConfig, err := config.ReadConfig()
 	if err != nil {
 		log.Fatalf("error reading config: %v", err)
 	}
@@ -30,16 +30,14 @@ func main() {
 		log.Fatalf("DB connection failed %v", err)
 	}
 
-	dbQuerries := database.New(db)
+	dbQueries := database.New(db)
 
 	s := &state{
 		config: currentConfig,
-		db:     dbQuerries,
+		db:     dbQueries,
 	}
 
-	cmds := commands{
-		registeredCommands: make(map[string]func(*state, command) error),
-	}
+	cmds := newCommands()
 
 	cmds.register("login", handlerLogin)
 	cmds.register("register", handlerRegister)
@@ -49,7 +47,7 @@ func main() {
 		Arguments: os.Args[2:],
 	}
 
-	if err = cmds.run(s, cmd); err != nil {
+	if err := cmds.run(s, cmd); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func (c *Config) SetUsers(username string) error {
+func (c *Config) SetCurrentUser(username string) error {
 	c.CurrentUserName = username
 
 	jsonData, err := json.MarshalIndent(c, "", " ")

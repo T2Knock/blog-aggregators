@@ -11,6 +11,12 @@ type commands struct {
 	registeredCommands map[string]func(*state, command) error
 }
 
+func newCommands() *commands {
+	return &commands{
+		registeredCommands: make(map[string]func(*state, command) error),
+	}
+}
+
 func (c *commands) run(s *state, cmd command) error {
 	handler, ok := c.registeredCommands[cmd.Name]
 	if !ok {

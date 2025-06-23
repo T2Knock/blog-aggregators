@@ -12,25 +12,25 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (user_id, user_name)
+INSERT INTO users (user_id, name)
 VALUES (
     $1,
     $2
 )
-RETURNING user_id, user_name, created_at, updated_at
+RETURNING user_id, name, created_at, updated_at
 `
 
 type CreateUserParams struct {
-	UserID   uuid.UUID
-	UserName string
+	UserID uuid.UUID
+	Name   string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.UserID, arg.UserName)
+	row := q.db.QueryRowContext(ctx, createUser, arg.UserID, arg.Name)
 	var i User
 	err := row.Scan(
 		&i.UserID,
-		&i.UserName,
+		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -38,15 +38,15 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getUser = `-- name: GetUser :one
-SELECT user_id, user_name, created_at, updated_at FROM users WHERE user_name=$1 LIMIT 1
+SELECT user_id, name, created_at, updated_at FROM users WHERE name=$1 LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, userName string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, userName)
+func (q *Queries) GetUser(ctx context.Context, name string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUser, name)
 	var i User
 	err := row.Scan(
 		&i.UserID,
-		&i.UserName,
+		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
