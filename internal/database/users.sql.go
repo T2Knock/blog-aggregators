@@ -7,8 +7,6 @@ package database
 
 import (
 	"context"
-
-	"github.com/google/uuid"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -16,7 +14,7 @@ INSERT INTO users (user_id, name) VALUES ($1, $2) RETURNING user_id, name, creat
 `
 
 type CreateUserParams struct {
-	UserID uuid.UUID
+	UserID string
 	Name   string
 }
 

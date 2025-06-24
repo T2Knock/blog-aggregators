@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE users (
-    user_id uuid PRIMARY KEY,
+    user_id varchar(32) PRIMARY KEY,
     name text NOT NULL UNIQUE,
     created_at timestamp NOT NULL DEFAULT now(),
     updated_at timestamp NOT NULL DEFAULT now()

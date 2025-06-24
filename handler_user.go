@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"github.com/T2Knock/blog-aggregators/internal/database"
-	"github.com/google/uuid"
+	"github.com/oklog/ulid/v2"
 )
 
 func handlerLogin(s *state, cmd command) error {
@@ -47,7 +47,7 @@ func handlerRegister(s *state, cmd command) error {
 	}
 
 	newUser, err := s.db.CreateUser(ctx, database.CreateUserParams{
-		UserID: uuid.New(),
+		UserID: ulid.Make().String(),
 		Name:   name,
 	})
 	if err != nil {
