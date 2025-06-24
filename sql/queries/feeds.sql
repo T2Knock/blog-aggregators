@@ -9,3 +9,11 @@ SELECT
     url,
     users.name AS user_name
 FROM feeds INNER JOIN users ON feeds.created_by = users.user_id;
+
+-- name: GetFeedByURL :one
+SELECT
+    feed_id,
+    name,
+    url
+FROM feeds
+WHERE url = $1;
