@@ -35,3 +35,18 @@ func handlerAddFeed(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerFeeds(s *state, cmd command) error {
+	ctx := context.Background()
+
+	feeds, err := s.db.GetFeeds(ctx)
+	if err != nil {
+		return fmt.Errorf("failed fetching user: %w", err)
+	}
+
+	for _, feed := range feeds {
+		fmt.Printf("name: %s, url: %s, user: %s \n", feed.FeedName, feed.Url, feed.UserName)
+	}
+
+	return nil
+}
