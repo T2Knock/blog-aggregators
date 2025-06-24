@@ -10,7 +10,7 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.Arguments) < 2 {
 		return fmt.Errorf("missing arguments: usage %s <name> <url>", cmd.Name)
 	}
@@ -20,11 +20,6 @@ func handlerAddFeed(s *state, cmd command) error {
 	}
 
 	ctx := context.Background()
-
-	user, err := s.db.GetUser(ctx, s.config.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("failed fetching user: %w", err)
-	}
 
 	newFeed, err := s.db.CreateFeed(ctx, database.CreateFeedParams{FeedID: ulid.Make().String(), Name: cmd.Arguments[0], Url: cmd.Arguments[1], CreatedBy: user.UserID})
 	if err != nil {

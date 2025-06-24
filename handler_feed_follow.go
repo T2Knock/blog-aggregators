@@ -9,7 +9,7 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.Arguments) == 0 {
 		return errors.New("missing arguments on command %s <url>")
 	}
@@ -19,11 +19,6 @@ func handlerFollow(s *state, cmd command) error {
 	feed, err := s.db.GetFeedByURL(ctx, cmd.Arguments[0])
 	if err != nil {
 		return fmt.Errorf("failed to fetch feed by url: %w", err)
-	}
-
-	user, err := s.db.GetUser(ctx, s.config.CurrentUserName)
-	if err != nil {
-		return fmt.Errorf("failed to fetch current user: %w", err)
 	}
 
 	if _, err = s.db.CreateFeedFollows(ctx, database.CreateFeedFollowsParams{
@@ -39,7 +34,7 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollowing(s *state, cmd command) error {
+func handlerFollowing(s *state, cmd command, user database.User) error {
 	ctx := context.Background()
 
 	followedFeeds, err := s.db.GetFeedFollowForUser(ctx, s.config.CurrentUserName)
