@@ -10,16 +10,16 @@ import (
 )
 
 const createFeed = `-- name: CreateFeed :one
-INSERT INTO feeds (feed_id, name, url, user_id) VALUES (
+INSERT INTO feeds (feed_id, name, url, created_by) VALUES (
     $1, $2, $3, $4
-) RETURNING feed_id, name, url, user_id, created_at, updated_at
+) RETURNING feed_id, name, url, created_by, created_at, updated_at
 `
 
 type CreateFeedParams struct {
-	FeedID string
-	Name   string
-	Url    string
-	UserID string
+	FeedID    string
+	Name      string
+	Url       string
+	CreatedBy string
 }
 
 func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, error) {
@@ -27,14 +27,14 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 		arg.FeedID,
 		arg.Name,
 		arg.Url,
-		arg.UserID,
+		arg.CreatedBy,
 	)
 	var i Feed
 	err := row.Scan(
 		&i.FeedID,
 		&i.Name,
 		&i.Url,
-		&i.UserID,
+		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -46,7 +46,7 @@ SELECT
     feeds.name AS feed_name,
     url,
     users.name AS user_name
-FROM feeds INNER JOIN users ON feeds.user_id = users.user_id
+FROM feeds INNER JOIN users ON feeds.created_by = users.user_id
 `
 
 type GetFeedsRow struct {

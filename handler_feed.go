@@ -26,7 +26,7 @@ func handlerAddFeed(s *state, cmd command) error {
 		return fmt.Errorf("failed fetching user: %w", err)
 	}
 
-	newFeed, err := s.db.CreateFeed(ctx, database.CreateFeedParams{FeedID: ulid.Make().String(), Name: cmd.Arguments[0], Url: cmd.Arguments[1], UserID: user.UserID})
+	newFeed, err := s.db.CreateFeed(ctx, database.CreateFeedParams{FeedID: ulid.Make().String(), Name: cmd.Arguments[0], Url: cmd.Arguments[1], CreatedBy: user.UserID})
 	if err != nil {
 		return fmt.Errorf("failed creating new feed: %w", err)
 	}
