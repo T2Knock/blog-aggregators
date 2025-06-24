@@ -65,11 +65,32 @@ func handlerRegister(s *state, cmd command) error {
 func handlerReset(s *state, cmd command) error {
 	ctx := context.Background()
 
-	err := s.db.DeleteUser(ctx)
+	err := s.db.DeleteUsers(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete all users: %w", err)
 	}
 
 	fmt.Println("User table reset!")
+	return nil
+}
+
+func handlerUsers(s *state, cmd command) error {
+	ctx := context.Background()
+
+	users, err := s.db.GetUsers(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get users: %w", err)
+	}
+
+	for _, user := range users {
+		indicator := ""
+
+		if user.Name == s.config.CurrentUserName {
+			indicator = " (current)"
+		}
+
+		fmt.Printf("* %s%s\n", user.Name, indicator)
+	}
+
 	return nil
 }
