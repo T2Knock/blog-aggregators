@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS feeds (
     feed_id varchar(32) PRIMARY KEY,
-    name text NOT NULL UNIQUE,
+    name text NOT NULL,
     url text NOT NULL UNIQUE,
     user_id varchar(32) NOT NULL,
     created_at timestamp NOT NULL DEFAULT now(),
