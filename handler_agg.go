@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/T2Knock/blog-aggregators/internal/database"
+	"github.com/oklog/ulid/v2"
 )
 
 func handlerAgg(s *state, cmd command) error {
@@ -48,10 +49,25 @@ func scrapeFeeds(s *state) error {
 		return fmt.Errorf("failed to mark feed fetched: %w", err)
 	}
 
-	log.Println("Feed Items")
+	for _, post := range rssFeed.Channel.Item {
+		publishedAt, err := time.Parse(time.RFC1123, post.PubDate)
+		if err != nil {
+			publishedAt = time.Time{}
+		}
 
-	for _, item := range rssFeed.Channel.Item {
-		log.Printf("* %s\n", item.Title)
+		postID, err := s.db.GetPostByURL(ctx, post.Link)
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			log.Printf("Failed get post by url %v", err)
+		}
+
+		if postID != "" {
+			continue
+		}
+
+		_, err = s.db.CreatePost(ctx, database.CreatePostParams{PostID: ulid.Make().String(), Title: sql.NullString{String: post.Title, Valid: post.Title != ""}, Description: sql.NullString{String: post.Description, Valid: post.Description != ""}, Url: post.Link, PublishedAt: sql.NullTime{Time: publishedAt, Valid: !publishedAt.IsZero()}, FeedID: feed.FeedID})
+		if err != nil {
+			log.Printf("Failed to save post %q: %v", post.Title, err)
+		}
 	}
 
 	return nil
