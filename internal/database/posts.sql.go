@@ -12,12 +12,12 @@ import (
 	"github.com/lib/pq"
 )
 
-const createPost = `-- name: CreatePost :one
+const createPost = `-- name: CreatePost :exec
 INSERT INTO posts (
     post_id, title, description, url, feed_id, published_at
 ) VALUES (
     $1, $2, $3, $4, $5, $6
-) RETURNING post_id, title, description, url, feed_id, published_at, created_at, updated_at
+)
 `
 
 type CreatePostParams struct {
@@ -29,8 +29,8 @@ type CreatePostParams struct {
 	PublishedAt sql.NullTime
 }
 
-func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
-	row := q.db.QueryRowContext(ctx, createPost,
+func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) error {
+	_, err := q.db.ExecContext(ctx, createPost,
 		arg.PostID,
 		arg.Title,
 		arg.Description,
@@ -38,18 +38,7 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 		arg.FeedID,
 		arg.PublishedAt,
 	)
-	var i Post
-	err := row.Scan(
-		&i.PostID,
-		&i.Title,
-		&i.Description,
-		&i.Url,
-		&i.FeedID,
-		&i.PublishedAt,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+	return err
 }
 
 const getPostByURL = `-- name: GetPostByURL :one
@@ -65,8 +54,16 @@ func (q *Queries) GetPostByURL(ctx context.Context, url string) (string, error) 
 }
 
 const getPostForUser = `-- name: GetPostForUser :many
-SELECT post_id, title, description, url, feed_id, published_at, created_at, updated_at FROM posts
-WHERE feed_id = ANY($1::varchar [])
+SELECT
+    post_id,
+    title,
+    description,
+    published_at,
+    posts.url AS post_url,
+    feeds.name AS feed_name
+FROM posts
+INNER JOIN feeds ON posts.feed_id = feeds.feed_id
+WHERE posts.feed_id = ANY($1::varchar [])
 ORDER BY published_at DESC
 LIMIT $2
 `
@@ -76,24 +73,31 @@ type GetPostForUserParams struct {
 	Limit   int32
 }
 
-func (q *Queries) GetPostForUser(ctx context.Context, arg GetPostForUserParams) ([]Post, error) {
+type GetPostForUserRow struct {
+	PostID      string
+	Title       sql.NullString
+	Description sql.NullString
+	PublishedAt sql.NullTime
+	PostUrl     string
+	FeedName    string
+}
+
+func (q *Queries) GetPostForUser(ctx context.Context, arg GetPostForUserParams) ([]GetPostForUserRow, error) {
 	rows, err := q.db.QueryContext(ctx, getPostForUser, pq.Array(arg.Column1), arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Post
+	var items []GetPostForUserRow
 	for rows.Next() {
-		var i Post
+		var i GetPostForUserRow
 		if err := rows.Scan(
 			&i.PostID,
 			&i.Title,
 			&i.Description,
-			&i.Url,
-			&i.FeedID,
 			&i.PublishedAt,
-			&i.CreatedAt,
-			&i.UpdatedAt,
+			&i.PostUrl,
+			&i.FeedName,
 		); err != nil {
 			return nil, err
 		}

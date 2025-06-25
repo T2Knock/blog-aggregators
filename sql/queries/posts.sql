@@ -6,8 +6,16 @@ INSERT INTO posts (
 );
 
 -- name: GetPostForUser :many
-SELECT * FROM posts
-WHERE feed_id = ANY($1::varchar [])
+SELECT
+    post_id,
+    title,
+    description,
+    published_at,
+    posts.url AS post_url,
+    feeds.name AS feed_name
+FROM posts
+INNER JOIN feeds ON posts.feed_id = feeds.feed_id
+WHERE posts.feed_id = ANY($1::varchar [])
 ORDER BY published_at DESC
 LIMIT $2;
 

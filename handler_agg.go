@@ -64,8 +64,7 @@ func scrapeFeeds(s *state) error {
 			continue
 		}
 
-		_, err = s.db.CreatePost(ctx, database.CreatePostParams{PostID: ulid.Make().String(), Title: sql.NullString{String: post.Title, Valid: post.Title != ""}, Description: sql.NullString{String: post.Description, Valid: post.Description != ""}, Url: post.Link, PublishedAt: sql.NullTime{Time: publishedAt, Valid: !publishedAt.IsZero()}, FeedID: feed.FeedID})
-		if err != nil {
+		if err = s.db.CreatePost(ctx, database.CreatePostParams{PostID: ulid.Make().String(), Title: sql.NullString{String: post.Title, Valid: post.Title != ""}, Description: sql.NullString{String: post.Description, Valid: post.Description != ""}, Url: post.Link, PublishedAt: sql.NullTime{Time: publishedAt, Valid: !publishedAt.IsZero()}, FeedID: feed.FeedID}); err != nil {
 			log.Printf("Failed to save post %q: %v", post.Title, err)
 		}
 	}

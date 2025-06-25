@@ -11,6 +11,7 @@ FROM inserted_feed_follow
 
 -- name: GetFeedFollowForUser :many
 SELECT
+    feed_follows.feed_id AS feed_id,
     feeds.name AS feed_name,
     users.name AS name
 FROM feed_follows
