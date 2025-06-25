@@ -47,6 +47,51 @@ psql "$DATABASE_URL" -f sql/schema/20250624040904_001_feeds.sql
 go build
 ```
 
+## Project Structure
+
+```sh
+
+.
+├── internal
+│   ├── config
+│   │   ├── config.go
+│   │   ├── read.go
+│   │   └── set_user.go
+│   └── database
+│       ├── db.go
+│       ├── feed_follows.sql.go
+│       ├── feeds.sql.go
+│       ├── models.go
+│       ├── posts.sql.go
+│       └── users.sql.go
+├── sql
+│   ├── queries
+│   │   ├── feed_follows.sql
+│   │   ├── feeds.sql
+│   │   ├── posts.sql
+│   │   └── users.sql
+│   └── schema
+│       ├── 20250618134959_001_users.sql
+│       ├── 20250624040904_001_feeds.sql
+│       ├── 20250624065950_create_feed_follows.sql
+│       ├── 20250624111901_add_last_fetched_at.sql
+│       └── 20250624125645_create_posts.sql
+├── AGENTS.md
+├── commands.go
+├── go.mod
+├── go.sum
+├── handler_agg.go
+├── handler_feed.go
+├── handler_feed_follow.go
+├── handler_post.go
+├── handler_user.go
+├── main.go
+├── middleware.go
+├── README.md
+├── rss_feed.go
+└── sqlc.yaml
+```
+
 ## License
 
 MIT
